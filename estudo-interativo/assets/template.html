@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{TITULO}} — estudo interactivo</title>
+<style>
+:root{
+  --bg:#f7f7f5; --bg2:#ffffff; --bg3:#eeeeea; --fg:#1c1c1a; --fg2:#5a5a54;
+  --line:#d8d8d2; --accent:#1f6f4a; --accent2:#8a4b1f; --accent3:#2a4d7a;
+  --new:#c8e6d0; --newfg:#0d4a28; --warn:#b03030; --warnbg:#fbe6e6;
+  --ok:#1f6f4a; --mono:ui-monospace,"Cascadia Code","Consolas","SF Mono",monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --sh:0 1px 3px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#141416; --bg2:#1c1c1f; --bg3:#252529; --fg:#e8e8e4; --fg2:#a0a09a;
+    --line:#35353a; --accent:#5fbf8d; --accent2:#d9955a; --accent3:#7aa8dd;
+    --new:#1d4630; --newfg:#8fe0b0; --warn:#e08080; --warnbg:#3a1e1e;
+    --sh:0 1px 3px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141416; --bg2:#1c1c1f; --bg3:#252529; --fg:#e8e8e4; --fg2:#a0a09a;
+  --line:#35353a; --accent:#5fbf8d; --accent2:#d9955a; --accent3:#7aa8dd;
+  --new:#1d4630; --newfg:#8fe0b0; --warn:#e08080; --warnbg:#3a1e1e;
+  --sh:0 1px 3px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+}
+:root[data-theme="light"]{
+  --bg:#f7f7f5; --bg2:#ffffff; --bg3:#eeeeea; --fg:#1c1c1a; --fg2:#5a5a54;
+  --line:#d8d8d2; --accent:#1f6f4a; --accent2:#8a4b1f; --accent3:#2a4d7a;
+  --new:#c8e6d0; --newfg:#0d4a28; --warn:#b03030; --warnbg:#fbe6e6;
+  --sh:0 1px 3px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.55;
+  -webkit-font-smoothing:antialiased;font-size:16px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px 80px}
+
+header{border-bottom:1px solid var(--line);background:var(--bg2);position:sticky;top:0;z-index:50;
+  box-shadow:var(--sh)}
+.hin{max-width:1120px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;
+  gap:16px;flex-wrap:wrap}
+h1{font-size:17px;font-weight:650;letter-spacing:-.01em;white-space:nowrap}
+h1 span{color:var(--fg2);font-weight:400}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+nav button{font:inherit;font-size:14px;padding:7px 14px;border:1px solid var(--line);
+  background:var(--bg);color:var(--fg2);border-radius:7px;cursor:pointer;transition:.12s}
+nav button:hover{border-color:var(--accent);color:var(--fg)}
+nav button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);
+  color:var(--bg2);font-weight:600}
+@media (prefers-color-scheme:dark){
+  nav button[aria-selected="true"]{color:#0f2019}
+}
+:root[data-theme="dark"] nav button[aria-selected="true"]{color:#0f2019}
+:root[data-theme="light"] nav button[aria-selected="true"]{color:#ffffff}
+#themeBtn{margin-left:4px;padding:7px 11px}
+
+section[role="tabpanel"]{display:none;padding-top:28px}
+section[role="tabpanel"].on{display:block}
+
+h2{font-size:23px;font-weight:640;letter-spacing:-.015em;margin:0 0 6px}
+h3{font-size:16px;font-weight:640;margin:26px 0 10px}
+.lead{color:var(--fg2);font-size:15px;max-width:74ch;margin-bottom:22px}
+p{margin:0 0 12px;max-width:76ch}
+ul,ol{margin:0 0 12px 20px;max-width:76ch}
+li{margin-bottom:5px}
+b,strong{font-weight:650}
+code{font-family:var(--mono);font-size:.88em;background:var(--bg3);padding:1px 5px;
+  border-radius:4px;border:1px solid var(--line)}
+
+/* ── frase-âncora: abre o separador "O que é" ── */
+.emuma{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:0 11px 11px 0;padding:16px 20px;margin:0 0 22px;font-size:16.5px;
+  line-height:1.6;box-shadow:var(--sh);max-width:80ch}
+.emuma .lb{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.09em;
+  color:var(--fg2);font-weight:700;margin-bottom:6px}
+
+/* ── analogia: leva sempre o ponto de rutura ── */
+.analog{background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:17px 20px;
+  margin:18px 0;box-shadow:var(--sh);max-width:80ch}
+.analog .ah{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent2);
+  font-weight:700;margin-bottom:8px}
+.analog .quebra{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);
+  font-size:14px;color:var(--fg2)}
+.analog .quebra b{color:var(--warn)}
+
+/* ── tooltips: glosa de um termo sem partir a frase ── */
+.t{border-bottom:1.5px dotted var(--accent);cursor:help;position:relative}
+.t:hover::after{content:attr(data-tip);position:absolute;left:0;top:calc(100% + 7px);
+  width:min(330px,78vw);background:var(--fg);color:var(--bg);padding:9px 12px;border-radius:7px;
+  font-size:13px;line-height:1.45;z-index:200;font-weight:400;box-shadow:var(--sh);
+  border-bottom:none}
+
+/* ── <details>: o porquê, a prova, o caso-limite ── */
+details.mais{background:var(--bg2);border:1px solid var(--line);border-radius:10px;
+  margin:14px 0;box-shadow:var(--sh);max-width:80ch;overflow:hidden}
+details.mais>summary{cursor:pointer;padding:13px 18px;font-size:14.5px;font-weight:600;
+  color:var(--fg);list-style:none;display:flex;align-items:center;gap:10px;transition:.12s}
+details.mais>summary::-webkit-details-marker{display:none}
+details.mais>summary::before{content:"+";font-family:var(--mono);font-size:16px;font-weight:700;
+  color:var(--accent);width:15px;flex:none;transition:.15s}
+details.mais[open]>summary::before{content:"−"}
+details.mais>summary:hover{background:var(--bg3)}
+details.mais[open]>summary{border-bottom:1px solid var(--line)}
+details.mais .corpo{padding:16px 18px 4px;font-size:14.5px;line-height:1.62}
+details.mais .corpo>p:last-child{margin-bottom:12px}
+
+/* ── painel de detalhe (anatomia clicável) ── */
+.panel{margin-top:18px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;
+  padding:20px 22px;box-shadow:var(--sh)}
+.panel .ttl{font-family:var(--mono);font-size:17px;font-weight:700;color:var(--accent);
+  margin-bottom:14px}
+.fields{display:grid;gap:0}
+.fld{display:grid;grid-template-columns:150px 1fr;gap:14px;padding:11px 0;
+  border-top:1px solid var(--line)}
+.fld:first-child{border-top:none;padding-top:0}
+.fld dt{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--fg2);padding-top:2px}
+.fld dd{font-size:14.5px}
+.fld dd code{font-size:.85em}
+@media(max-width:640px){.fld{grid-template-columns:1fr;gap:3px}}
+
+.anat{display:grid;grid-template-columns:1.15fr 1fr;gap:20px;align-items:start}
+@media(max-width:900px){.anat{grid-template-columns:1fr}}
+.codebox{background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:20px;
+  font-family:var(--mono);font-size:13.5px;line-height:1.85;overflow-x:auto;box-shadow:var(--sh);
+  white-space:pre}
+.hot{cursor:pointer;border-radius:4px;padding:1px 3px;margin:0 -3px;transition:.12s;
+  border-bottom:1.5px dotted var(--accent)}
+.hot:hover{background:var(--bg3)}
+.hot.sel{background:var(--accent);color:var(--bg2);border-bottom-color:transparent}
+:root[data-theme="light"] .hot.sel{color:#fff}
+.jk{color:var(--accent3)}
+.jv{color:var(--accent2)}
+.jn{color:var(--fg2)}
+.hint2{font-size:13px;color:var(--fg2);font-style:italic;margin-top:10px}
+
+/* ── toggle A/B ── */
+.ab{background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:20px;
+  box-shadow:var(--sh);margin-top:18px}
+.abtabs{display:flex;gap:8px;margin-bottom:14px}
+.abtabs button{flex:1;font:inherit;font-size:13.5px;padding:9px 8px;border:1px solid var(--line);
+  background:var(--bg);color:var(--fg2);border-radius:7px;cursor:pointer;font-weight:600}
+.abtabs button.on{background:var(--accent);border-color:var(--accent);color:var(--bg2)}
+:root[data-theme="light"] .abtabs button.on{color:#fff}
+.abbox{font-family:var(--mono);font-size:13px;background:var(--bg3);border:1px solid var(--line);
+  border-radius:8px;padding:13px 15px;line-height:1.6;margin-bottom:12px;white-space:pre-wrap}
+
+/* ── diagramas SVG ── */
+.mapbox{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:14px;
+  overflow-x:auto;box-shadow:var(--sh);margin-top:16px}
+svg{display:block;min-width:680px;width:100%;height:auto}
+.zone{fill:none;stroke:var(--line);stroke-width:1.5;stroke-dasharray:6 4}
+.zlbl{fill:var(--fg2);font-size:11px;font-weight:700;letter-spacing:.09em;font-family:var(--sans)}
+.bx rect{fill:var(--bg3);stroke:var(--line);stroke-width:1.5;transition:.25s}
+.bx text{fill:var(--fg2);font-size:12.5px;font-weight:620;font-family:var(--mono);
+  text-anchor:middle;transition:.25s}
+.bx .s{fill:var(--fg2);font-size:10px;font-weight:400;font-family:var(--sans)}
+.bx.act rect{fill:var(--accent);stroke:var(--accent)}
+.bx.act text,.bx.act .s{fill:var(--bg2)}
+:root[data-theme="light"] .bx.act text,:root[data-theme="light"] .bx.act .s{fill:#fff}
+/* o marker-end e declarado no proprio path (marker-end="url(#ah1)"): os ids de
+   marker tem de ser unicos por pagina, e o CSS nao pode fixar um so para todos. */
+.ar{stroke:var(--fg2);stroke-width:2;fill:none;opacity:.28;transition:.25s}
+.ar.act{opacity:1;stroke:var(--accent)}
+.arl{fill:var(--fg2);font-size:10.5px;font-family:var(--sans);text-anchor:middle;opacity:.28;
+  transition:.25s}
+.arl.act{opacity:1}
+.node{cursor:pointer}
+.node rect{fill:var(--bg3);stroke:var(--line);stroke-width:1.5;transition:.14s}
+.node:hover rect{stroke:var(--accent);stroke-width:2.5}
+.node.sel rect{fill:var(--accent);stroke:var(--accent)}
+.node text{fill:var(--fg);font-size:13.5px;font-weight:620;font-family:var(--mono);
+  pointer-events:none;text-anchor:middle}
+.node .sub{fill:var(--fg2);font-size:10.5px;font-weight:400;font-family:var(--sans)}
+.node.sel text,.node.sel .sub{fill:var(--bg2)}
+:root[data-theme="light"] .node.sel text,:root[data-theme="light"] .node.sel .sub{fill:#fff}
+.flow{stroke:var(--fg2);stroke-width:2;fill:none}
+
+/* ── tabela de comparação ── */
+table.cmp{width:100%;border-collapse:collapse;font-size:14px;margin-top:18px;
+  background:var(--bg2);border:1px solid var(--line);border-radius:11px;overflow:hidden}
+table.cmp th,table.cmp td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--line);
+  vertical-align:top}
+table.cmp th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--fg2);
+  font-weight:700;background:var(--bg3)}
+table.cmp tr:last-child td{border-bottom:none}
+table.cmp td:first-child{font-family:var(--mono);font-size:13px}
+
+/* ── percurso passo a passo ── */
+.hopbar{display:flex;gap:4px;margin:18px 0 20px;flex-wrap:wrap}
+.hopbar button{flex:1;min-width:80px;font:inherit;font-size:11.5px;padding:8px 4px;
+  border:1px solid var(--line);background:var(--bg2);color:var(--fg2);border-radius:6px;
+  cursor:pointer;font-family:var(--mono);transition:.12s}
+.hopbar button:hover{border-color:var(--accent)}
+.hopbar button.on{background:var(--accent);border-color:var(--accent);color:var(--bg2);
+  font-weight:700}
+:root[data-theme="light"] .hopbar button.on{color:#fff}
+.hopgrid{display:grid;grid-template-columns:1.35fr 1fr;gap:18px;align-items:start}
+@media(max-width:860px){.hopgrid{grid-template-columns:1fr}}
+.jsonbox{background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:18px;
+  font-family:var(--mono);font-size:13px;line-height:1.75;overflow-x:auto;box-shadow:var(--sh);
+  white-space:pre-wrap}
+.side{background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:18px;
+  box-shadow:var(--sh)}
+.side .hnum{font-family:var(--mono);font-size:11px;color:var(--fg2);letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:5px}
+.side h4{font-size:17px;margin-bottom:11px;font-weight:640}
+.side .who{font-family:var(--mono);font-size:12.5px;background:var(--bg3);padding:8px 11px;
+  border-radius:6px;border:1px solid var(--line);margin-bottom:13px;word-break:break-word}
+.side p{font-size:14.5px;margin-bottom:10px}
+.navbtns{display:flex;gap:10px;align-items:center;margin-top:18px}
+.navbtns button{font:inherit;font-size:14px;padding:9px 18px;border:1px solid var(--line);
+  background:var(--bg2);color:var(--fg);border-radius:7px;cursor:pointer;font-weight:550}
+.navbtns button:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.navbtns button:disabled{opacity:.35;cursor:not-allowed}
+.navbtns .ind{font-family:var(--mono);font-size:13px;color:var(--fg2);margin-left:auto}
+
+/* ── camadas expansíveis ── */
+.layers{display:grid;gap:10px;margin-top:16px}
+.layer{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:15px 18px;
+  cursor:pointer;transition:.14s;box-shadow:var(--sh);display:grid;
+  grid-template-columns:34px 1fr auto;gap:14px;align-items:center}
+.layer:hover{border-color:var(--accent)}
+.layer .n{font-family:var(--mono);font-size:19px;font-weight:700;color:var(--fg2)}
+.layer .ttl2{font-size:15px;font-weight:640}
+.layer .sub2{font-size:13px;color:var(--fg2);font-family:var(--mono);margin-top:2px}
+.layer .exp{grid-column:1/-1;font-size:14.5px;line-height:1.6;padding-top:13px;margin-top:2px;
+  border-top:1px solid var(--line);display:none}
+.layer.open .exp{display:block}
+.layer.open{border-color:var(--accent)}
+.badge{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  padding:5px 11px;border-radius:20px;white-space:nowrap}
+.badge.hard{background:var(--new);color:var(--newfg)}
+.badge.soft{background:var(--warnbg);color:var(--warn)}
+
+.note{background:var(--bg2);border:1px solid var(--line);border-left:3px solid var(--accent2);
+  border-radius:0 9px 9px 0;padding:14px 17px;font-size:14.5px;margin:18px 0;max-width:80ch}
+
+/* ── FLASHCARDS ── */
+.fcwrap{margin-top:20px}
+.fchead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.fchead .sc{font-family:var(--mono);font-size:13.5px;background:var(--bg2);padding:8px 15px;
+  border-radius:8px;border:1px solid var(--line)}
+.fchead button{font:inherit;font-size:13.5px;padding:8px 16px;border:1px solid var(--line);
+  background:var(--bg2);color:var(--fg);border-radius:7px;cursor:pointer}
+.fchead button:hover{border-color:var(--accent);color:var(--accent)}
+.card{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:38px 32px;
+  min-height:230px;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;cursor:pointer;box-shadow:var(--sh);transition:.14s;user-select:none}
+.card:hover{border-color:var(--accent)}
+.card .face{font-size:19px;font-weight:600;line-height:1.5;max-width:60ch}
+.card .face.verso{font-size:16px;font-weight:450;text-align:left;line-height:1.62}
+.card .face.verso code{font-size:.88em}
+.card .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--fg2);
+  font-weight:700;margin-bottom:14px}
+.card .tip{font-size:12.5px;color:var(--fg2);font-style:italic;margin-top:20px}
+.fcnav{display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap}
+.fcnav button{font:inherit;font-size:14px;padding:9px 18px;border:1px solid var(--line);
+  background:var(--bg2);color:var(--fg);border-radius:7px;cursor:pointer;font-weight:550}
+.fcnav button:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.fcnav button:disabled{opacity:.35;cursor:not-allowed}
+.fcnav .sei{border-color:var(--ok);color:var(--ok)}
+.fcnav .naosei{border-color:var(--warn);color:var(--warn)}
+.fcnav .ind{font-family:var(--mono);font-size:13px;color:var(--fg2);margin-left:auto}
+.fcdone{font-size:15px;line-height:1.6}
+
+/* ── quiz ── */
+.qhead{display:flex;align-items:center;gap:14px;margin-bottom:20px;flex-wrap:wrap}
+.qhead .sc{font-family:var(--mono);font-size:14px;background:var(--bg2);padding:8px 15px;
+  border-radius:8px;border:1px solid var(--line)}
+.qhead button{font:inherit;font-size:13.5px;padding:8px 16px;border:1px solid var(--line);
+  background:var(--bg2);color:var(--fg);border-radius:7px;cursor:pointer}
+.qhead button:hover{border-color:var(--accent);color:var(--accent)}
+.q{background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:20px 22px;
+  margin-bottom:15px;box-shadow:var(--sh)}
+.q .tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--fg2);margin-bottom:8px}
+.q .tag.oral{color:var(--accent2)}
+.q .qt{font-size:16px;font-weight:600;margin-bottom:14px;max-width:74ch}
+.opts{display:grid;gap:8px}
+.opts button{font:inherit;font-size:14.5px;text-align:left;padding:11px 15px;
+  border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:8px;
+  cursor:pointer;transition:.12s;line-height:1.45}
+.opts button:hover:not(:disabled){border-color:var(--accent)}
+.opts button:disabled{cursor:default}
+.opts button.good{background:var(--new);border-color:var(--ok);color:var(--newfg);font-weight:600}
+.opts button.bad{background:var(--warnbg);border-color:var(--warn);color:var(--warn)}
+.expl{margin-top:13px;padding:13px 15px;background:var(--bg3);border-left:3px solid var(--accent);
+  border-radius:0 7px 7px 0;font-size:14.5px;line-height:1.6}
+.revbtn{font:inherit;font-size:14px;padding:10px 20px;border:1px dashed var(--accent2);
+  background:var(--bg);color:var(--accent2);border-radius:8px;cursor:pointer;font-weight:600}
+.revbtn:hover{background:var(--bg3)}
+.model{margin-top:13px;padding:15px 17px;background:var(--bg3);border-left:3px solid var(--accent2);
+  border-radius:0 7px 7px 0;font-size:14.5px;line-height:1.65}
+.model .mh{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--fg2);
+  font-weight:700;margin-bottom:7px}
+.hint{font-size:13.5px;color:var(--fg2);font-style:italic;margin-bottom:11px}
+
+/* ── PRÓXIMOS NÍVEIS: contrato de expansão. Não mudar data-nivel/data-slug. ── */
+.niveis{display:grid;gap:11px;margin-top:18px}
+.nivel{background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:16px 19px;
+  box-shadow:var(--sh);max-width:82ch}
+.nivel .nh{display:flex;align-items:center;gap:11px;margin-bottom:8px;flex-wrap:wrap}
+.nivel .nt{font-size:15.5px;font-weight:640}
+.nivel .nd{font-size:14.5px;line-height:1.6;color:var(--fg)}
+.nivel .destranca{font-size:13.5px;color:var(--fg2);margin-top:9px;padding-top:9px;
+  border-top:1px dashed var(--line)}
+.nivel .destranca b{color:var(--accent)}
+.nivel[data-feito="sim"]{opacity:.55}
+.nivel[data-feito="sim"] .nt::after{content:" · já coberto";font-weight:400;color:var(--fg2);
+  font-size:13px}
+.tagn{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  padding:4px 10px;border-radius:20px;white-space:nowrap;font-family:var(--sans)}
+.tagn.intermedio{background:var(--new);color:var(--newfg)}
+.tagn.avancado{background:var(--warnbg);color:var(--warn)}
+
+/* ── tabela larga: o corpo da pagina nunca faz scroll horizontal ── */
+.tblwrap{overflow-x:auto}
+
+/* ══ 14. LEITOR DE CODIGO ANOTADO ══ */
+.rdbar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.rdbar button{font:inherit;font-family:var(--mono);font-size:11.5px;padding:6px 10px;
+  border:1px solid var(--line);background:var(--bg2);color:var(--fg2);border-radius:6px;
+  cursor:pointer;transition:.12s}
+.rdbar button:hover{border-color:var(--accent);color:var(--fg)}
+.rdbar button.on{background:var(--accent);border-color:var(--accent);color:var(--bg2);
+  font-weight:650}
+:root[data-theme="light"] .rdbar button.on{color:#fff}
+.rdhead{font-family:var(--mono);font-size:12.5px;color:var(--fg2);margin-bottom:9px}
+.rdhead b{color:var(--accent);font-size:13.5px;font-weight:700}
+/* stretch, nao start: senao a coluna da direita nao tem altura e o sticky nao cola */
+.rdgrid{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;align-items:stretch}
+@media(max-width:1000px){.rdgrid{grid-template-columns:1fr}}
+.rdsrc{background:var(--bg2);border:1px solid var(--line);border-radius:11px;
+  padding:14px 0;box-shadow:var(--sh);overflow:auto;font-family:var(--mono);
+  font-size:12.5px;line-height:1.6;max-height:580px}
+.rdsrc .code{display:inline-block;min-width:100%}
+.rdsrc .l{display:block;white-space:pre;min-width:max-content;padding-right:18px;
+  border-left:3px solid transparent}
+.rdsrc .l .n{display:inline-block;width:46px;text-align:right;padding-right:13px;
+  color:var(--fg2);opacity:.5;user-select:none}
+.rdsrc .l.c{cursor:pointer}
+.rdsrc .l.c:hover{background:var(--bg3)}
+.rdsrc .l.sel{background:var(--bg3);border-left-color:var(--accent)}
+.rdnote{background:var(--bg2);border:1px solid var(--line);border-radius:11px;
+  padding:17px 19px;box-shadow:var(--sh);position:sticky;top:86px}
+.rdnote .rt{font-size:15.5px;font-weight:650;margin-bottom:3px;line-height:1.35}
+.rdnote .rr{font-family:var(--mono);font-size:11.5px;color:var(--fg2);margin-bottom:12px}
+.rdnote .rb{font-size:14.5px;line-height:1.62}
+.rdnote .rb p{margin-bottom:10px}
+.rdnote .rb p:last-child{margin-bottom:0}
+.rdnav{display:flex;gap:8px;align-items:center;margin-top:14px;padding-top:12px;
+  border-top:1px solid var(--line)}
+.rdnav button{font:inherit;font-size:13px;padding:6px 13px;border:1px solid var(--line);
+  background:var(--bg);color:var(--fg);border-radius:6px;cursor:pointer}
+.rdnav button:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+.rdnav button:disabled{opacity:.35;cursor:not-allowed}
+.rdnav .ind{font-family:var(--mono);font-size:11.5px;color:var(--fg2);margin-left:auto}
+
+/* ══ 15. GRELHA DE CONCEITOS ══ */
+.cgroup{margin-top:22px}
+.cglbl{font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--fg2);
+  font-weight:700;margin-bottom:9px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(174px,1fr));gap:8px}
+.cg{background:var(--bg2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;
+  cursor:pointer;transition:.12s;box-shadow:var(--sh)}
+.cg:hover{border-color:var(--accent)}
+.cg.sel{border-color:var(--accent);background:var(--bg3)}
+.cg .cgt{font-family:var(--mono);font-size:12.5px;font-weight:650;color:var(--accent);
+  word-break:break-word;line-height:1.3}
+.cg .cgs{font-size:11.5px;color:var(--fg2);margin-top:4px;line-height:1.35}
+
+/* ══ 16. SIMULADOR DE CENARIOS REAIS ══ */
+.simctl{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
+@media(max-width:780px){.simctl{grid-template-columns:1fr}}
+.simbox{background:var(--bg2);border:1px solid var(--line);border-radius:11px;
+  padding:14px 16px;box-shadow:var(--sh)}
+.simbox .sl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--fg2);
+  font-weight:700;margin-bottom:10px}
+.simopts{display:flex;gap:6px;flex-wrap:wrap}
+.simopts button{font:inherit;font-size:12.5px;font-family:var(--mono);padding:7px 11px;
+  border:1px solid var(--line);background:var(--bg);color:var(--fg2);border-radius:6px;
+  cursor:pointer;transition:.12s}
+.simopts button:hover{border-color:var(--accent)}
+.simopts button.on{background:var(--accent);border-color:var(--accent);color:var(--bg2);
+  font-weight:650}
+:root[data-theme="light"] .simopts button.on{color:#fff}
+.simres{margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+@media(max-width:920px){.simres{grid-template-columns:1fr}}
+.simcard{background:var(--bg2);border:1px solid var(--line);border-radius:11px;
+  padding:16px 18px;box-shadow:var(--sh)}
+.simcard .sh2{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--fg2);
+  font-weight:700;margin-bottom:10px}
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.05em;
+  padding:4px 10px;border-radius:20px;font-family:var(--mono)}
+.pill.ok{background:var(--new);color:var(--newfg)}
+.pill.no{background:var(--warnbg);color:var(--warn)}
+.tr .st{font-family:var(--mono);font-size:11.5px;line-height:1.5;padding:6px 10px;
+  border-left:2px solid var(--line);margin-bottom:3px;background:var(--bg3);
+  border-radius:0 5px 5px 0;white-space:pre-wrap;word-break:break-word}
+.tr .st.bad{border-left-color:var(--warn)}
+.tr .st.fin{border-left-color:var(--accent);font-weight:650}
+.mono{font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;word-break:break-word;
+  line-height:1.55}
+.kw{display:inline-block;font-family:var(--mono);font-size:11.5px;background:var(--bg3);
+  border:1px solid var(--line);border-radius:4px;padding:2px 6px;margin:0 4px 4px 0}
+.replybox{font-family:var(--mono);font-size:12.5px;white-space:pre-wrap;line-height:1.6;
+  background:var(--bg3);border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+
+/* ══ 17. CARTOES-RECEITA "onde mexer para..." ══ */
+.recs{display:grid;gap:11px;margin-top:16px}
+details.rec{background:var(--bg2);border:1px solid var(--line);border-radius:11px;
+  box-shadow:var(--sh);overflow:hidden;max-width:none}
+details.rec>summary{cursor:pointer;padding:14px 18px;font-size:15px;font-weight:640;
+  list-style:none;display:flex;align-items:center;gap:10px}
+details.rec>summary::-webkit-details-marker{display:none}
+details.rec>summary::before{content:"▸";color:var(--accent2);font-size:12px;width:12px}
+details.rec[open]>summary::before{content:"▾"}
+details.rec[open]>summary{border-bottom:1px solid var(--line);background:var(--bg3)}
+details.rec .rbody{padding:16px 18px 8px;font-size:14.5px;line-height:1.6}
+details.rec ol{margin:0 0 12px 20px}
+details.rec ol li{margin-bottom:7px}
+details.rec .tst{margin:4px 0 12px;padding:12px 15px;background:var(--bg3);
+  border-left:3px solid var(--ok);border-radius:0 7px 7px 0;font-size:13.5px;line-height:1.55}
+details.rec .tst b{color:var(--ok)}
+
+/* ══ 18. GAVETA DE GLOSSARIO ══ */
+#gbtn{position:fixed;right:18px;bottom:18px;z-index:120;font:inherit;font-size:13.5px;
+  font-weight:600;padding:11px 18px;border:1px solid var(--line);background:var(--bg2);
+  color:var(--fg);border-radius:24px;cursor:pointer;box-shadow:var(--sh)}
+#gbtn:hover{border-color:var(--accent);color:var(--accent)}
+#gdraw{position:fixed;top:0;right:0;height:100%;width:min(440px,94vw);background:var(--bg2);
+  border-left:1px solid var(--line);box-shadow:var(--sh);z-index:130;
+  transform:translateX(103%);transition:transform .22s;display:flex;flex-direction:column}
+#gdraw.open{transform:none}
+#gdraw .gh{padding:15px 18px;border-bottom:1px solid var(--line);display:flex;gap:10px;
+  align-items:center}
+#gdraw .gh h3{margin:0;font-size:16px;flex:1}
+#gclose{font:inherit;font-size:15px;padding:4px 12px;border:1px solid var(--line);
+  background:var(--bg);color:var(--fg2);border-radius:6px;cursor:pointer}
+#gclose:hover{border-color:var(--accent);color:var(--accent)}
+#gfilter{margin:14px 18px 0;padding:9px 12px;font:inherit;font-size:14px;
+  border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--fg);
+  width:calc(100% - 36px)}
+#glist{overflow-y:auto;padding:10px 18px 34px;flex:1}
+.gi{padding:11px 0;border-top:1px solid var(--line)}
+.gi:first-child{border-top:none}
+.gi .gt{font-family:var(--mono);font-size:13px;font-weight:650;color:var(--accent)}
+.gi .gd{font-size:13.5px;line-height:1.55;margin-top:3px}
+.gempty{padding:20px 0;color:var(--fg2);font-size:14px;font-style:italic}
+
+footer{border-top:1px solid var(--line);margin-top:48px;padding-top:20px;font-size:13.5px;
+  color:var(--fg2);max-width:82ch;line-height:1.6}
+footer b{color:var(--fg)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hin">
+    <h1>{{TITULO}} <span>· {{SUBTITULO}}</span></h1>
+    <nav role="tablist">
+      <button role="tab" aria-selected="true"  data-tab="oquee">O que é</button>
+      <button role="tab" aria-selected="false" data-tab="anatomia">Anatomia</button>
+      <button role="tab" aria-selected="false" data-tab="funciona">Como funciona</button>
+      <button role="tab" aria-selected="false" data-tab="liga">Como se liga</button>
+      <button role="tab" aria-selected="false" data-tab="confusoes">Confusões</button>
+      <button role="tab" aria-selected="false" data-tab="avaliacao">Auto-avaliação</button>
+      <button role="tab" aria-selected="false" data-tab="niveis">Próximos níveis</button>
+      <button id="themeBtn" title="Alternar tema">◐</button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ══════════ 1. O QUE É ══════════ -->
+<section role="tabpanel" id="oquee" class="on">
+  <h2>{{H2_OQUEE}}</h2>
+  <div class="emuma"><span class="lb">Em uma frase</span>{{EM_UMA_FRASE}}</div>
+  {{CONTEUDO_OQUEE}}
+</section>
+
+<!-- ══════════ 2. ANATOMIA ══════════ -->
+<section role="tabpanel" id="anatomia">
+  <h2>{{H2_ANATOMIA}}</h2>
+  <p class="lead">{{LEAD_ANATOMIA}}</p>
+  {{CONTEUDO_ANATOMIA}}
+</section>
+
+<!-- ══════════ 3. COMO FUNCIONA ══════════ -->
+<section role="tabpanel" id="funciona">
+  <h2>{{H2_FUNCIONA}}</h2>
+  <p class="lead">{{LEAD_FUNCIONA}}</p>
+  {{CONTEUDO_FUNCIONA}}
+</section>
+
+<!-- ══════════ 4. COMO SE LIGA ══════════ -->
+<section role="tabpanel" id="liga">
+  <h2>{{H2_LIGA}}</h2>
+  <p class="lead">{{LEAD_LIGA}}</p>
+  {{CONTEUDO_LIGA}}
+</section>
+
+<!-- ══════════ 5. CONFUSÕES ══════════ -->
+<section role="tabpanel" id="confusoes">
+  <h2>{{H2_CONFUSOES}}</h2>
+  <p class="lead">{{LEAD_CONFUSOES}}</p>
+  {{CONTEUDO_CONFUSOES}}
+</section>
+
+<!-- ══════════ 6. AUTO-AVALIAÇÃO ══════════ -->
+<section role="tabpanel" id="avaliacao">
+  <h2>Auto-avaliação</h2>
+  <p class="lead">Primeiro os flashcards, para fixar o vocabulário. Depois o quiz, que verifica
+    se percebeste o mecanismo — e não só se reconheces as palavras.</p>
+
+  <h3>Flashcards</h3>
+  <div class="fcwrap">
+    <div class="fchead">
+      <span class="sc" id="fcscore"></span>
+      <button id="fcshuffle">Baralhar</button>
+      <button id="fcreset">Recomeçar</button>
+    </div>
+    <div class="card" id="fccard"></div>
+    <div class="fcnav">
+      <button id="fcprev">← Anterior</button>
+      <button id="fcflip">Virar (espaço)</button>
+      <button class="sei" id="fcsei">Sei</button>
+      <button class="naosei" id="fcnaosei">Não sei</button>
+      <span class="ind" id="fcind"></span>
+    </div>
+  </div>
+
+  <h3>Quiz</h3>
+  <div class="qhead">
+    <span class="sc" id="qscore"></span>
+    <button id="qreset">Recomeçar</button>
+  </div>
+  <div id="qlist"></div>
+</section>
+
+<!-- ══════════ 7. PRÓXIMOS NÍVEIS ══════════ -->
+<!-- Este separador é o estado da skill. Cada .nivel tem data-nivel e data-slug;
+     uma re-execução lê-os para saber o que já foi coberto e o que falta.      -->
+<section role="tabpanel" id="niveis">
+  <h2>Próximos níveis</h2>
+  <p class="lead">Isto é o que ficou deliberadamente de fora para o estudo base se manter
+    navegável. Cada ponto está aqui porque removê-lo <b>não</b> parte o modelo mental —
+    mas sabê-lo abre uma porta nova. Pede o que quiseres aprofundar e vira um separador destes.</p>
+  <div class="niveis">
+{{CONTEUDO_NIVEIS}}
+  </div>
+</section>
+
+<footer>
+  <b>Proveniência.</b> {{PROVENIENCIA}}
+</footer>
+
+</div>
+
+<!-- ══ Gaveta de glossário: acessível de qualquer separador, para nenhum termo ser um
+     beco sem saída. Com {{DADOS_GLOSSARIO}} vazio, o botão esconde-se sozinho. ══ -->
+<button id="gbtn">Glossário</button>
+<aside id="gdraw">
+  <div class="gh">
+    <h3>Glossário</h3>
+    <button id="gclose">Fechar</button>
+  </div>
+  <input id="gfilter" type="text" placeholder="Filtrar — escreve parte de um termo…" autocomplete="off">
+  <div id="glist"></div>
+</aside>
+
+<script>
+/* ═══ tabs ═══ */
+document.querySelectorAll('nav button[data-tab]').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('nav button[data-tab]').forEach(x=>x.setAttribute('aria-selected','false'));
+    b.setAttribute('aria-selected','true');
+    document.querySelectorAll('section[role=tabpanel]').forEach(s=>s.classList.remove('on'));
+    document.getElementById(b.dataset.tab).classList.add('on');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+
+/* ═══ tema ═══ */
+document.getElementById('themeBtn').addEventListener('click',()=>{
+  const r=document.documentElement;
+  const cur=r.getAttribute('data-theme');
+  const dark=window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const now=cur||(dark?'dark':'light');
+  r.setAttribute('data-theme',now==='dark'?'light':'dark');
+});
+
+/* ═══ camadas expansíveis ═══ */
+document.querySelectorAll('.layer').forEach(l=>{
+  l.addEventListener('click',()=>l.classList.toggle('open'));
+});
+
+/* ═══ FLASHCARDS ═══
+   f = frente (a pergunta), v = verso (a resposta curta). HTML permitido nos dois. */
+const CARDS=[
+{{DADOS_FLASHCARDS}}
+];
+let fcOrd=[...CARDS.keys()], fcI=0, fcVirado=false;
+const fcMarca=new Map();
+const elCard=document.getElementById('fccard'),
+      elInd=document.getElementById('fcind'),
+      elScore=document.getElementById('fcscore');
+function fcPinta(){
+  const fim=fcI>=fcOrd.length;
+  ['fcflip','fcsei','fcnaosei'].forEach(id=>document.getElementById(id).disabled=fim);
+  document.getElementById('fcprev').disabled=fcI===0;
+  if(fim){
+    const sei=[...fcMarca.values()].filter(v=>v==='sei').length;
+    elCard.innerHTML='<div class="fcdone">Fim da ronda: <b>'+sei+' de '+fcMarca.size+
+      '</b> marcados como sabidos.'+
+      (fcMarca.size>sei?' Carrega em <b>Baralhar</b> para outra volta — os que falhaste vêm primeiro.':
+       ' Podes passar ao quiz.')+'</div>';
+    elInd.textContent='';
+    fcScore();
+    return;
+  }
+  const c=CARDS[fcOrd[fcI]];
+  elCard.innerHTML=fcVirado
+    ? '<div class="lbl">Verso</div><div class="face verso">'+c.v+'</div>'
+    : '<div class="lbl">Frente</div><div class="face">'+c.f+
+      '</div><div class="tip">clica no cartão, ou carrega em espaço, para virar</div>';
+  elInd.textContent=(fcI+1)+' / '+fcOrd.length;
+  fcScore();
+}
+function fcScore(){
+  const sei=[...fcMarca.values()].filter(v=>v==='sei').length;
+  elScore.textContent='Sei: '+sei+' · Não sei: '+(fcMarca.size-sei)+' · Por ver: '+
+    (CARDS.length-fcMarca.size);
+}
+function fcVira(){ fcVirado=!fcVirado; fcPinta(); }
+function fcMarcar(v){ if(fcI>=fcOrd.length)return; fcMarca.set(fcOrd[fcI],v); fcI++; fcVirado=false; fcPinta(); }
+elCard.addEventListener('click',()=>{ if(fcI<fcOrd.length) fcVira(); });
+document.getElementById('fcflip').addEventListener('click',fcVira);
+document.getElementById('fcsei').addEventListener('click',()=>fcMarcar('sei'));
+document.getElementById('fcnaosei').addEventListener('click',()=>fcMarcar('naosei'));
+document.getElementById('fcprev').addEventListener('click',()=>{
+  if(fcI>0){fcI--;fcVirado=false;fcPinta();}
+});
+document.getElementById('fcshuffle').addEventListener('click',()=>{
+  /* os falhados vêm primeiro — é a parte que ainda falta estudar */
+  const falhou=[...CARDS.keys()].filter(i=>fcMarca.get(i)==='naosei');
+  const resto=[...CARDS.keys()].filter(i=>fcMarca.get(i)!=='naosei');
+  const baralha=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];}return a};
+  fcOrd=[...baralha(falhou),...baralha(resto)];
+  fcI=0;fcVirado=false;fcMarca.clear();fcPinta();
+});
+document.getElementById('fcreset').addEventListener('click',()=>{
+  fcOrd=[...CARDS.keys()];fcI=0;fcVirado=false;fcMarca.clear();fcPinta();
+});
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('avaliacao').classList.contains('on'))return;
+  if(e.target.tagName==='BUTTON')return;
+  if(e.key===' '){e.preventDefault();if(fcI<fcOrd.length)fcVira();}
+  if(e.key==='ArrowRight')fcMarcar('sei');
+  if(e.key==='ArrowLeft'&&fcI>0){fcI--;fcVirado=false;fcPinta();}
+});
+fcPinta();
+
+/* ═══ QUIZ ═══
+   k:'mc'   → q, o[] (opções), a (índice da certa), e (explicação)
+   k:'oral' → q, h (pista), m (resposta-modelo em HTML) */
+const QS=[
+{{DADOS_QUIZ}}
+];
+let mcT=0,mcOk=0,orRev=0;
+function upScore(){document.getElementById('qscore').textContent=
+  'Escolha múltipla: '+mcOk+' / '+mcT+' · Faladas reveladas: '+orRev+' / '+QS.filter(q=>q.k==='oral').length}
+function buildQuiz(){
+  mcT=0;mcOk=0;orRev=0;upScore();
+  const L=document.getElementById('qlist');L.innerHTML='';
+  QS.forEach((q,i)=>{
+    const d=document.createElement('div');d.className='q';
+    if(q.k==='mc'){
+      d.innerHTML='<div class="tag">Pergunta '+(i+1)+' · escolha múltipla</div><div class="qt">'+q.q+'</div>';
+      const ob=document.createElement('div');ob.className='opts';
+      q.o.forEach((txt,j)=>{
+        const b=document.createElement('button');b.innerHTML=txt;
+        b.addEventListener('click',()=>{
+          [...ob.children].forEach(x=>x.disabled=true);
+          mcT++; if(j===q.a){mcOk++;b.classList.add('good')}
+          else{b.classList.add('bad');ob.children[q.a].classList.add('good')}
+          const e=document.createElement('div');e.className='expl';e.innerHTML=q.e;d.appendChild(e);
+          upScore();
+        });
+        ob.appendChild(b);
+      });
+      d.appendChild(ob);
+    }else{
+      d.innerHTML='<div class="tag oral">Pergunta '+(i+1)+' · explica em voz alta</div>'+
+        '<div class="qt">'+q.q+'</div><div class="hint">Pista: '+q.h+'</div>';
+      const b=document.createElement('button');b.className='revbtn';
+      b.textContent='Já disse em voz alta — revelar a resposta-modelo';
+      b.addEventListener('click',()=>{
+        b.remove();orRev++;upScore();
+        const m=document.createElement('div');m.className='model';
+        m.innerHTML='<div class="mh">Resposta-modelo</div>'+q.m;d.appendChild(m);
+      });
+      d.appendChild(b);
+    }
+    L.appendChild(d);
+  });
+}
+document.getElementById('qreset').addEventListener('click',buildQuiz);
+buildQuiz();
+
+/* ═══ GAVETA DE GLOSSÁRIO ═══
+   {t:'termo', d:'uma ou duas linhas'}. Deixa o array vazio e o botão desaparece. */
+const GLOS=[
+{{DADOS_GLOSSARIO}}
+];
+(function(){
+  const btn=document.getElementById('gbtn'), dr=document.getElementById('gdraw'),
+        cl=document.getElementById('gclose'), fl=document.getElementById('gfilter'),
+        ls=document.getElementById('glist');
+  if(!GLOS.length){ btn.remove(); dr.remove(); return; }
+  const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  function draw(q){
+    const t=(q||'').trim().toLowerCase();
+    const hit=GLOS.filter(g=>!t||g.t.toLowerCase().includes(t)||g.d.toLowerCase().includes(t));
+    ls.innerHTML=hit.length
+      ? hit.map(g=>'<div class="gi"><div class="gt">'+esc(g.t)+'</div><div class="gd">'+
+          esc(g.d)+'</div></div>').join('')
+      : '<div class="gempty">Nenhum termo com «'+esc(t)+'».</div>';
+  }
+  btn.addEventListener('click',()=>{dr.classList.add('open');fl.focus();});
+  cl.addEventListener('click',()=>dr.classList.remove('open'));
+  fl.addEventListener('input',()=>draw(fl.value));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')dr.classList.remove('open');});
+  draw('');
+})();
+
+{{JS_EXTRA}}
+</script>
+</body>
+</html>
